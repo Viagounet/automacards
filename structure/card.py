@@ -95,7 +95,7 @@ class Card:
             dmc.Col(es_list, span=6),
             dmc.Col(fr_list, span=6),
         ],
-            style={"height": "30vh", "overflow-y": "scroll"})]
+            style={"height": "30vh", "overflow-y": "scroll"}, id={"type": "list-words", "index": self.title})]
         button = [html.Div([dmc.Divider(variant="dotted"),
                             dmc.Button("Take a test", id={
                                 'type': 'test-button',
@@ -129,7 +129,8 @@ class Card:
                 ),
             ],
         )]
-        return dmc.Paper(header + body + button + modal, shadow="xs", radius=10, withBorder=True, p=10)
+        return dmc.Paper(header + body + button + modal, shadow="xs", radius=10, withBorder=True, p=10,
+                         id={"type": "vocab-card", "index": self.title})
 
     def __len__(self):
         return len(self.words)
@@ -140,8 +141,8 @@ class CardFromFile(Card):
         with open(f"data/{user}/cards/{title}.json", "r", encoding="utf-8") as fb:
             self.data = json.load(fb)
         self.words = [WordFromFile(user, word["string"]) for word in self.data["words"]]
-        super(CardFromFile, self).__init__(self.data["title"])
-        self.translation = self.data["translation"]
+        super(CardFromFile, self).__init__(self.data["title"], self.words)
+        self.title = self.data["title"]
         self.score = self.data["score"]
 
 

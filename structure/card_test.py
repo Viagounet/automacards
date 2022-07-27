@@ -15,9 +15,11 @@ class CardTest:
     def start(self):
         # self.card.shuffle()
         self.state = "Running"
+        if self.current_word.translation == "":
+            self.src_lan = "new"
 
     def render_correction(self, user_input):
-        if self.src_lan == "or":
+        if self.src_lan == "or" or self.src_lan == "new":
             if user_input == self.current_word.translation:
                 return dmc.Alert("You're right!", title="Good!", color="green")
             else:
@@ -38,7 +40,7 @@ class CardTest:
         else:
             self.i += 1
             if self.current_word.translation == "":
-                self.src_lan = "or"
+                self.src_lan = "new"
 
     def stop(self):
         self.i = 0
@@ -46,7 +48,7 @@ class CardTest:
 
     @property
     def render_clear_text(self):
-        if self.src_lan == "or":
+        if self.src_lan == "or" or self.src_lan == "new":
             return dmc.Group([dmc.ThemeIcon(
                 DashIconify(icon="circle-flags:es", width=32),
                 radius="xl",
@@ -64,7 +66,7 @@ class CardTest:
 
     @property
     def render_input(self):
-        if self.src_lan == "or":
+        if self.src_lan == "or" or self.src_lan == "new":
             return dmc.Group([dmc.ThemeIcon(
                 DashIconify(icon="circle-flags:fr", width=32),
                 radius="xl",
@@ -78,7 +80,7 @@ class CardTest:
                 radius="xl",
                 color="gray",
                 size=32,
-            ), dmc.TextInput(placeholder="Answer")])
+            ), dmc.TextInput(placeholder="Answer", id={"type": "user-text-input", "index": self.card.title})])
         return dmc.Container("There has been a problem (wrong or no language provided)")
 
     @property
@@ -87,13 +89,7 @@ class CardTest:
 
     @property
     def render(self):
-        if self.current_word.translation == "":
-            return html.Div([dmc.Alert("This is a new word, make sure the translation is correct.", title="New word",
-                                       color="blue"),
-                             dmc.Space(h=15),
-                             dmc.Group([self.render_clear_text, dmc.Space(h=15), self.render_input])
-                             ])
-        if self.src_lan == "or":
+        if self.src_lan == "or" or self.src_lan == "new":
             return dmc.Group([self.render_clear_text, dmc.Space(h=15), self.render_input])
         elif self.src_lan == "ta":
             return dmc.Group([self.render_clear_text, dmc.Space(h=15), self.render_input])
