@@ -117,11 +117,13 @@ class Card:
                 dmc.Space(h=20),
                 dmc.Group(
                     [
-                        dmc.Button("Next"),
+                        dmc.Button("Confirm", id={"type": "confirm-button", "index": self.title}),
                         dmc.Button(
                             "Stop",
                             color="red",
                         ),
+                        html.Div(dmc.Button("Next", id={"type": "next-button", "index": self.title}, ),
+                                 style={"display": "none"}),
                     ],
                     position="right",
                 ),
