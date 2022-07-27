@@ -55,7 +55,18 @@ class Card:
             dmc.Divider(variant="dotted"),
             dmc.Space(h=15),
         ]
-        es_list = [dmc.List(
+
+        fr_item_list = []
+        es_item_list = []
+        for word in self.words:
+            if word.translation == "":
+                fr_item_list.append(dmc.ListItem(dmc.Text("n/a")))
+                es_item_list.append(dmc.ListItem(dmc.Text(word.string)))
+            else:
+                fr_item_list.append(dmc.ListItem(word.translation.capitalize()))
+                es_item_list.append(dmc.ListItem(dmc.Text(word.string)))
+
+        es_list = dmc.List(
             icon=[
                 dmc.ThemeIcon(
                     DashIconify(icon="circle-flags:es", width=24),
@@ -66,9 +77,9 @@ class Card:
             ],
             size="sm",
             spacing="sm",
-            children=[
-                dmc.ListItem(word.string.capitalize()), ]) for word in self.words]
-        fr_list = [dmc.List(
+            children=es_item_list)
+
+        fr_list = dmc.List(
             icon=[
                 dmc.ThemeIcon(
                     DashIconify(icon="circle-flags:fr", width=24),
@@ -79,15 +90,14 @@ class Card:
             ],
             size="sm",
             spacing="sm",
-            children=[
-                dmc.ListItem(word.translation.capitalize()), ]) for word in self.words]
+            children=fr_item_list)
         body = [dmc.Grid([
             dmc.Col(es_list, span=6),
             dmc.Col(fr_list, span=6),
         ],
             style={"height": "30vh", "overflow-y": "scroll"})]
         button = [html.Div([dmc.Divider(variant="dotted"),
-                            dmc.Button("Se tester", id={
+                            dmc.Button("Take a test", id={
                                 'type': 'test-button',
                                 'index': self.title
                             })],

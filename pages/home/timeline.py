@@ -41,7 +41,7 @@ def create_timeline(state=0):
                 children=[
                     dmc.Text(
                         [
-                            "Feeling ready to fight? ",
+                            "Feeling ready to test your skills? ",
                             dmc.Anchor(
                                 "Take your first test!",
                                 href="#",

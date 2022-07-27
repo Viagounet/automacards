@@ -36,7 +36,7 @@ header = dmc.Header(
                             dcc.Link(
                                 [
                                     dmc.MediaQuery(
-                                        create_home_link(dmc.Title("AutomaCards")),
+                                        create_home_link(dmc.Title("Cardomatic")),
                                         smallerThan="sm",
                                         styles={"display": "none"},
                                     ),
