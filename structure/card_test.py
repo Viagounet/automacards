@@ -11,13 +11,15 @@ class CardTest:
         self.i = 0
         self.state = "Not started yet"
         self.src_lan = choice(["or", "ta"])
+        self.limit = len(self.card)
 
     def start(self):
-        # self.card.shuffle()
+        self.card.shuffle()
         self.state = "Running"
         if self.current_word.translation == "":
             self.src_lan = "new"
 
+    # todo: suppriner l'input vide il y a une erreur
     def render_correction(self, user_input):
         if self.src_lan == "or" or self.src_lan == "new":
             if user_input == self.current_word.translation:
@@ -39,12 +41,13 @@ class CardTest:
             self.stop()
         else:
             self.i += 1
+            print(self.i+1)
             if self.current_word.translation == "":
                 self.src_lan = "new"
 
     def stop(self):
         self.i = 0
-        self.state = "Not started yet"
+        self.state = "Finished"
 
     @property
     def render_clear_text(self):

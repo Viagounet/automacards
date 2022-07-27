@@ -7,6 +7,8 @@ from pages.home.cards import cards
 from pages.home.timeline import create_timeline
 from pages.header import header
 from dash import html, Output, Input, State, callback, MATCH
+
+from structure.card import gen_lists
 from utility.func import parse
 
 app = Dash(__name__)
@@ -54,9 +56,12 @@ def hidden(widget):
 
 
 def gen_elements(card, type, input):
+    string = "Next"
+    if card.test.i+1 == card.test.limit:
+        string = "Finish"
     if card.test.src_lan == "new":
         buttons = [
-            dmc.Button("Next", id={"type": "next-button", "index": card.title}),
+            dmc.Button(string, id={"type": "next-button", "index": card.title}),
             hidden(dmc.Button("Confirm", id={"type": "confirm-button", "index": card.title})),
             dmc.Button("Stop", color="red")]
         top = [dmc.Alert("This is a new word, make sure the translation is correct.", title="New word",
@@ -74,7 +79,7 @@ def gen_elements(card, type, input):
         top = [html.Div([])]
         if type == "confirm-button":
             buttons = [
-                dmc.Button("Next", id={"type": "next-button", "index": card.title}),
+                dmc.Button(string, id={"type": "next-button", "index": card.title}),
                 hidden(dmc.Button("Confirm", id={"type": "confirm-button", "index": card.title})),
                 dmc.Button("Stop", color="red")]
             bottom = [dmc.Space(h=10),
@@ -87,7 +92,7 @@ def gen_elements(card, type, input):
                       )]
         elif type == "test-button":
             buttons = [
-                hidden(dmc.Button("Next", id={"type": "next-button", "index": card.title})),
+                hidden(dmc.Button(string, id={"type": "next-button", "index": card.title})),
                 dmc.Button("Confirm", id={"type": "confirm-button", "index": card.title}),
                 dmc.Button("Stop", color="red")]
 
@@ -99,7 +104,7 @@ def gen_elements(card, type, input):
                 )]
         else:
             buttons = [
-                hidden(dmc.Button("Next", id={"type": "next-button", "index": card.title})),
+                hidden(dmc.Button(string, id={"type": "next-button", "index": card.title})),
                 dmc.Button("Confirm", id={"type": "confirm-button", "index": card.title}),
                 dmc.Button("Stop", color="red")]
             bottom = [
@@ -114,6 +119,7 @@ def gen_elements(card, type, input):
 @callback(
     Output({'type': 'test-modal', 'index': MATCH}, "opened"),
     Output({'type': 'test-modal', 'index': MATCH}, "children"),
+    Output({'type': 'test-modal', 'index': MATCH}, "title"),
     Input({'type': 'test-button', 'index': MATCH}, 'n_clicks'),
     Input({'type': 'next-button', 'index': MATCH}, 'n_clicks'),
     Input({'type': 'confirm-button', 'index': MATCH}, 'n_clicks'),
@@ -127,15 +133,17 @@ def my_test(n, n_, n__, opened, modal_children, input_value):
     type, index = parse(ctx)
     card = account.get_card(index)
 
+    title = f"Test : {card.title.capitalize()} (Word {card.test.i+1}/{card.test.limit})"
+
     if type == "test-button":
         card.test.start()
         top, bottom = gen_elements(card, type, input_value)
-        return not opened, top + [card.test.render] + bottom
+        return not opened, top + [card.test.render] + bottom, title
 
     if type == "confirm-button":
         card = account.get_card(index)
         top, bottom = gen_elements(card, type, input_value)
-        return True, top + [card.test.render] + bottom
+        return True, top + [card.test.render] + bottom, title
 
     if type == "next-button":
         card = account.get_card(index)
@@ -144,26 +152,39 @@ def my_test(n, n_, n__, opened, modal_children, input_value):
             card.test.current_word.translation = input_value
             card.save("viagounet")
 
-        card.test.next()
         top, bottom = gen_elements(card, type, input_value)
+        card.test.next()
+
         if card.test.state == "Not started yet":
-            return False, top + [card.test.render] + bottom
-        return True, top + [card.test.render] + bottom
+            return False, top + [card.test.render] + bottom, title
+        return True, top + [card.test.render] + bottom, title
 
 
 # todo: Change the input for a detection of change in the json
 @callback(
     Output({'type': 'list-words', 'index': MATCH}, "children"),
-    Input({'type': 'next-button', 'index': MATCH}, 'n_clicks'),
+    Input({'type': 'test-modal', 'index': MATCH}, "opened"),
     State({'type': 'list-words', 'index': MATCH}, "children"),
     prevent_initial_call=True,
 )
-def update_card_after_next(n, current):
+def update_card_after_next(opened, current):
     ctx = dash.callback_context
     type, index = parse(ctx)
     card = account.get_card(index)
-    if n:
-        fr_item_list = []
+    if opened:
+        return dmc.Container(dmc.Title("Currently testing for this card", order=4, align="center"))
+    else:
+        es_list, fr_list = gen_lists(card.words)
+        return dmc.Grid([
+            dmc.Col(es_list, span=6),
+            dmc.Col(fr_list, span=6),
+        ])
+
+
+if __name__ == "__main__":
+    app.run_server(debug=True)
+
+"""fr_item_list = []
         es_item_list = []
         for word in card.words:
             if word.translation == "":
@@ -201,9 +222,4 @@ def update_card_after_next(n, current):
         return [
             dmc.Col(es_list, span=6),
             dmc.Col(fr_list, span=6),
-        ]
-    return current
-
-
-if __name__ == "__main__":
-    app.run_server(debug=True)
+        ]"""

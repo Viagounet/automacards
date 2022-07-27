@@ -8,6 +8,44 @@ from dash_iconify import DashIconify
 from structure.card_test import CardTest
 
 
+def gen_lists(words):
+    fr_item_list = []
+    es_item_list = []
+    for word in words:
+        if word.translation == "":
+            fr_item_list.append(dmc.ListItem(dmc.Text("n/a")))
+            es_item_list.append(dmc.ListItem(dmc.Text(word.string)))
+        else:
+            fr_item_list.append(dmc.ListItem(word.translation.capitalize()))
+            es_item_list.append(dmc.ListItem(dmc.Text(word.string)))
+
+    es_list = dmc.List(
+        icon=[
+            dmc.ThemeIcon(
+                DashIconify(icon="circle-flags:es", width=24),
+                radius="xl",
+                color="gray",
+                size=24,
+            )
+        ],
+        size="sm",
+        spacing="sm",
+        children=es_item_list)
+
+    fr_list = dmc.List(
+        icon=[
+            dmc.ThemeIcon(
+                DashIconify(icon="circle-flags:fr", width=24),
+                radius="xl",
+                color="dark",
+                size=24,
+            )
+        ],
+        size="sm",
+        spacing="sm",
+        children=fr_item_list)
+    return es_list, fr_list
+
 class Card:
     def __init__(self, title, words):
 
@@ -55,42 +93,7 @@ class Card:
             dmc.Divider(variant="dotted"),
             dmc.Space(h=15),
         ]
-
-        fr_item_list = []
-        es_item_list = []
-        for word in self.words:
-            if word.translation == "":
-                fr_item_list.append(dmc.ListItem(dmc.Text("n/a")))
-                es_item_list.append(dmc.ListItem(dmc.Text(word.string)))
-            else:
-                fr_item_list.append(dmc.ListItem(word.translation.capitalize()))
-                es_item_list.append(dmc.ListItem(dmc.Text(word.string)))
-
-        es_list = dmc.List(
-            icon=[
-                dmc.ThemeIcon(
-                    DashIconify(icon="circle-flags:es", width=24),
-                    radius="xl",
-                    color="gray",
-                    size=24,
-                )
-            ],
-            size="sm",
-            spacing="sm",
-            children=es_item_list)
-
-        fr_list = dmc.List(
-            icon=[
-                dmc.ThemeIcon(
-                    DashIconify(icon="circle-flags:fr", width=24),
-                    radius="xl",
-                    color="dark",
-                    size=24,
-                )
-            ],
-            size="sm",
-            spacing="sm",
-            children=fr_item_list)
+        es_list, fr_list = gen_lists(self.words)
         body = [dmc.Grid([
             dmc.Col(es_list, span=6),
             dmc.Col(fr_list, span=6),
