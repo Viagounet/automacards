@@ -46,6 +46,7 @@ def gen_lists(words):
         children=fr_item_list)
     return es_list, fr_list
 
+
 class Card:
     def __init__(self, title, words):
 
@@ -56,16 +57,10 @@ class Card:
             self.words = words
 
         self.title = title
-        self.score = 0
         self.test = CardTest(self)
 
     def shuffle(self):
         shuffle(self.words)
-
-    def level(self):
-        if self.score < 0:
-            return 0
-        return int(log(1 + self.score, 1.75))
 
     @property
     def serialize(self):
@@ -80,11 +75,21 @@ class Card:
             word.save(user)
 
     @property
+    def score(self):
+        return sum([word.taor_score for word in self.words] + [word.orta_score for word in self.words])
+
+    @property
+    def level(self):
+        if self.score < 0:
+            return 0
+        return int(log(self.score + 1, 3))
+
+    @property
     def render(self):
         header = [
             dmc.Group([dmc.Title(self.title.capitalize(), order=4),
                        dmc.Badge(
-                           "Lvl.1",
+                           f"Lvl.{self.level}",
                            variant="gradient",
                            gradient={"from": "teal", "to": "lime", "deg": 105},
                        ),
@@ -153,8 +158,11 @@ class Word:
     def __init__(self, string):
         self.string = string
         self.translation = ""
-        self.orta_score = 100  # origin->target
-        self.taor_score = 100
+        self.orta_score = 1  # origin->target
+        self.taor_score = 1
+
+        self.orta_strikes = 0
+        self.taor_strikes = 0
 
     @property
     def serialize(self):

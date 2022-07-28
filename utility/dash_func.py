@@ -21,7 +21,6 @@ def gen_elements(card, type, input):
             ),
 
         ]
-        card.test.score += 5
 
     else:
         top = [html.Div([])]
@@ -62,6 +61,6 @@ def gen_elements(card, type, input):
                     position="right",
                 ),
             ]
-    print("render : ", card.test.score)
+
     bottom = bottom + [dmc.Space(h=15), dmc.Progress(value=card.test.score, color="pink")]
     return top, bottom

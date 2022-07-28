@@ -1,7 +1,9 @@
+from math import exp
 from random import choice, choices
 
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
+from numpy import interp
 
 
 class CardTest:
@@ -11,10 +13,9 @@ class CardTest:
         self.src_lan = choice(["orta", "taor"])
         self.current_word = self.card.words[0]
         self.limit = len(self.card)
-
-        self.score = 0
-        self.score_objective = 100
         self.nb_trials = 0
+
+        self.card_score_at_start = self.card.score
 
     def start(self):
         self.card.shuffle()
@@ -27,28 +28,32 @@ class CardTest:
     def render_correction(self, user_input):
         if self.src_lan == "orta" or self.src_lan == "new":
             if user_input == self.current_word.translation:
-                self.score += 10
+                self.current_word.orta_score += 1
                 return dmc.Alert("You're right!", title="Good!", color="green")
             else:
-                self.score -= 10
-                if self.score <= 0:
-                    self.score = 0
+                self.current_word.orta_score -= 1
 
                 return dmc.Alert(f"Wrong answer. The correct answer was : {self.current_word.translation}",
                                  title="Oops!", color="red")
         elif self.src_lan == "taor":
             if user_input == self.current_word.string:
-                self.score += 10
+                self.current_word.taor_score += 1
                 return dmc.Alert("You're right!", title="Good!", color="green")
             else:
-                self.score -= 10
+                self.current_word.taor_score -= 1
                 return dmc.Alert(f"Wrong answer. The correct answer was : {self.current_word.string}",
                                  title="Oops!", color="red")
 
         return dmc.Container(f"There has been a problem (wrong or no language provided) (lan={self.src_lan}")
 
+    @property
+    def score(self):
+        print(self.card_score_at_start, self.card_score_at_start, self.card_score_at_start * 1.5,
+              interp(self.card.score, [self.card_score_at_start, self.card_score_at_start * 1.5], [0, 100]))
+        return interp(self.card.score, [self.card_score_at_start, self.card_score_at_start * 1.5], [0, 100])
+
     def next(self):
-        if self.score >= self.score_objective:
+        if self.score >= 100:
             self.stop()
 
         else:
@@ -58,11 +63,13 @@ class CardTest:
                 self.src_lan = "new"
 
     def stop(self):
+        self.card_score_at_start = self.card.score
+        print("Card Level : ", self.card.level)
+        print("Card Score : ", self.card.score)
         self.state = "Finished"
 
     @property
     def render_clear_text(self):
-        print(self.src_lan, self.current_word.string, self.current_word.translation)
         if self.src_lan == "orta" or self.src_lan == "new":
             return dmc.Group([dmc.ThemeIcon(
                 DashIconify(icon="circle-flags:es", width=32),
@@ -112,8 +119,10 @@ class CardTest:
         for word in self.card.words:
             possible_words.append([word, "orta"])
             possible_words.append([word, "taor"])
-            weights.append(word.orta_score)
-            weights.append(word.taor_score)
+            weights.append(int(exp(-word.orta_score / 10) * 1000))
+            weights.append(int(exp(-word.taor_score / 10) * 1000))
+
+        print([(word[0].string, word[0].translation, score) for word, score in zip(possible_words, weights)])
 
         chosen_tuple = choices(possible_words, weights)[0]
         word, language = chosen_tuple
