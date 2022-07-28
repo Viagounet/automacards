@@ -1,6 +1,5 @@
 import dash
 from dash import Dash
-from dash_iconify import DashIconify
 
 from pages.accounts import viagounet
 from pages.home.cards import cards
@@ -10,6 +9,7 @@ from dash import html, Output, Input, State, callback, MATCH
 
 from structure.card import gen_lists
 from utility.func import parse
+from utility.dash_func import gen_elements
 
 app = Dash(__name__)
 
@@ -51,71 +51,6 @@ app.layout = html.Div(
 )
 
 
-def hidden(widget):
-    return html.Div(children=widget, style={"display": "none"})
-
-
-def gen_elements(card, type, input):
-    string = "Next"
-    if card.test.i+1 == card.test.limit:
-        string = "Finish"
-    if card.test.src_lan == "new":
-        buttons = [
-            dmc.Button(string, id={"type": "next-button", "index": card.title}),
-            hidden(dmc.Button("Confirm", id={"type": "confirm-button", "index": card.title})),
-            dmc.Button("Stop", color="red")]
-        top = [dmc.Alert("This is a new word, make sure the translation is correct.", title="New word",
-                         color="blue"), dmc.Space(h=15)]
-        bottom = [
-            dmc.Space(h=15),
-            dmc.Group(
-                buttons,
-                position="right",
-            ),
-
-        ]
-
-    else:
-        top = [html.Div([])]
-        if type == "confirm-button":
-            buttons = [
-                dmc.Button(string, id={"type": "next-button", "index": card.title}),
-                hidden(dmc.Button("Confirm", id={"type": "confirm-button", "index": card.title})),
-                dmc.Button("Stop", color="red")]
-            bottom = [dmc.Space(h=10),
-                      card.test.render_correction(input),
-                      dmc.Space(h=10),
-                      dmc.Divider(),
-                      dmc.Group(
-                          buttons,
-                          position="right",
-                      )]
-        elif type == "test-button":
-            buttons = [
-                hidden(dmc.Button(string, id={"type": "next-button", "index": card.title})),
-                dmc.Button("Confirm", id={"type": "confirm-button", "index": card.title}),
-                dmc.Button("Stop", color="red")]
-
-            bottom = [
-                dmc.Space(h=15),
-                dmc.Group(
-                    children=buttons,
-                    position="right",
-                )]
-        else:
-            buttons = [
-                hidden(dmc.Button(string, id={"type": "next-button", "index": card.title})),
-                dmc.Button("Confirm", id={"type": "confirm-button", "index": card.title}),
-                dmc.Button("Stop", color="red")]
-            bottom = [
-                dmc.Group(
-                    buttons,
-                    position="right",
-                ),
-            ]
-    return top, bottom
-
-
 @callback(
     Output({'type': 'test-modal', 'index': MATCH}, "opened"),
     Output({'type': 'test-modal', 'index': MATCH}, "children"),
@@ -128,12 +63,12 @@ def gen_elements(card, type, input):
     State({'type': 'user-text-input', 'index': MATCH}, "value"),
     prevent_initial_call=True,
 )
-def my_test(n, n_, n__, opened, modal_children, input_value):
+def test_manager(n, n_, n__, opened, modal_children, input_value):
     ctx = dash.callback_context
     type, index = parse(ctx)
     card = account.get_card(index)
-
-    title = f"Test : {card.title.capitalize()} (Word {card.test.i+1}/{card.test.limit})"
+    card.test.ask()
+    title = f"Test : {card.title.capitalize()}"
 
     if type == "test-button":
         card.test.start()
@@ -152,8 +87,8 @@ def my_test(n, n_, n__, opened, modal_children, input_value):
             card.test.current_word.translation = input_value
             card.save("viagounet")
 
-        top, bottom = gen_elements(card, type, input_value)
         card.test.next()
+        top, bottom = gen_elements(card, type, input_value)
 
         if card.test.state == "Not started yet":
             return False, top + [card.test.render] + bottom, title
@@ -182,44 +117,4 @@ def update_card_after_next(opened, current):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
-
-"""fr_item_list = []
-        es_item_list = []
-        for word in card.words:
-            if word.translation == "":
-                fr_item_list.append(dmc.ListItem(dmc.Text("n/a")))
-                es_item_list.append(dmc.ListItem(dmc.Text(word.string)))
-            else:
-                fr_item_list.append(dmc.ListItem(word.translation.capitalize()))
-                es_item_list.append(dmc.ListItem(dmc.Text(word.string)))
-
-        es_list = dmc.List(
-            icon=[
-                dmc.ThemeIcon(
-                    DashIconify(icon="circle-flags:es", width=24),
-                    radius="xl",
-                    color="gray",
-                    size=24,
-                )
-            ],
-            size="sm",
-            spacing="sm",
-            children=es_item_list)
-
-        fr_list = dmc.List(
-            icon=[
-                dmc.ThemeIcon(
-                    DashIconify(icon="circle-flags:fr", width=24),
-                    radius="xl",
-                    color="dark",
-                    size=24,
-                )
-            ],
-            size="sm",
-            spacing="sm",
-            children=fr_item_list)
-        return [
-            dmc.Col(es_list, span=6),
-            dmc.Col(fr_list, span=6),
-        ]"""
+    app.run_server()

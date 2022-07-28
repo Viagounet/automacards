@@ -153,8 +153,8 @@ class Word:
     def __init__(self, string):
         self.string = string
         self.translation = ""
-        self.orta_score = 0  # origin->target
-        self.taor_score = 0
+        self.orta_score = 100  # origin->target
+        self.taor_score = 100
 
     @property
     def serialize(self):
