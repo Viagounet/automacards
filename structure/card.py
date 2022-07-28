@@ -6,6 +6,7 @@ from dash import html
 from dash_iconify import DashIconify
 
 from structure.card_test import CardTest
+from structure.word import WordFromFile, Word
 from utility.func import level_mapping
 
 
@@ -142,6 +143,11 @@ class Card:
     def __len__(self):
         return len(self.words)
 
+    def __add__(self, other):
+        if isinstance(other, Word):
+            self.words.append(other)
+        elif isinstance(other, Card):
+            self.words = self.words + other.words
 
 class CardFromFile(Card):
     def __init__(self, user, title):
@@ -151,38 +157,3 @@ class CardFromFile(Card):
         super(CardFromFile, self).__init__(self.data["title"], self.words)
         self.title = self.data["title"]
         self.score = self.data["score"]
-
-
-class Word:
-    def __init__(self, string):
-        self.string = string
-        self.translation = ""
-        self.orta_score = 1  # origin->target
-        self.taor_score = 1
-
-        self.orta_strikes = 0
-        self.taor_strikes = 0
-
-    @property
-    def serialize(self):
-        return {"string": self.string,
-                "translation": self.translation,
-                "orta_score": self.orta_score,
-                "taor_score": self.taor_score}
-
-    def save(self, user):
-        with open(f"data/{user}/words/{self.string}.json", "w", encoding="utf-8") as fb:
-            json.dump(self.serialize, fb)
-
-    def __len__(self):
-        return len(self.string)
-
-
-class WordFromFile(Word):
-    def __init__(self, user, string):
-        with open(f"data/{user}/words/{string}.json", "r", encoding="utf-8") as fb:
-            self.data = json.load(fb)
-        super(WordFromFile, self).__init__(self.data["string"])
-        self.translation = self.data["translation"]
-        self.orta_score = self.data["orta_score"]  # origin->target
-        self.taor_score = self.data["taor_score"]

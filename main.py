@@ -8,6 +8,7 @@ from pages.header import header
 from dash import html, Output, Input, State, callback, MATCH
 
 from structure.card import gen_lists
+from structure.decision_taker import DecisionMaker
 from utility.func import parse
 from utility.dash_func import gen_elements, badge
 
@@ -16,6 +17,8 @@ app = Dash(__name__)
 import dash_mantine_components as dmc
 
 account = viagounet
+decision_maker = DecisionMaker(25000, "embeddings/embeddings-l-model.vec")
+
 
 timeline = create_timeline(0)
 tabs = dmc.Col(dmc.Tabs(
@@ -68,6 +71,7 @@ def test_manager(n, n_, n__, opened, modal_children, input_value):
     type, index = parse(ctx)
     card = account.get_card(index)
     card.test.ask()
+    decision_maker.add_words_to(card)
     title = f"Test : {card.title.capitalize()}"
 
     if type == "test-button":
