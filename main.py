@@ -1,5 +1,5 @@
 import dash
-from dash import Dash
+from dash import Dash, ALL
 
 from pages.accounts import viagounet
 from pages.home.cards import cards
@@ -9,7 +9,7 @@ from dash import html, Output, Input, State, callback, MATCH
 
 from structure.card import gen_lists
 from utility.func import parse
-from utility.dash_func import gen_elements
+from utility.dash_func import gen_elements, badge
 
 app = Dash(__name__)
 
@@ -77,6 +77,7 @@ def test_manager(n, n_, n__, opened, modal_children, input_value):
 
     if type == "confirm-button":
         card = account.get_card(index)
+        card.test.last_answer = input_value
         top, bottom = gen_elements(card, type, input_value)
         return True, top + [card.test.render] + bottom, title
 
@@ -98,6 +99,7 @@ def test_manager(n, n_, n__, opened, modal_children, input_value):
 # todo: Change the input for a detection of change in the json
 @callback(
     Output({'type': 'list-words', 'index': MATCH}, "children"),
+    Output({'type': 'card-title', 'index': MATCH}, "children"),
     Input({'type': 'test-modal', 'index': MATCH}, "opened"),
     State({'type': 'list-words', 'index': MATCH}, "children"),
     prevent_initial_call=True,
@@ -106,14 +108,26 @@ def update_card_after_next(opened, current):
     ctx = dash.callback_context
     type, index = parse(ctx)
     card = account.get_card(index)
+    title = [dmc.Title(card.title.capitalize(), order=4),
+             badge(card.level, f"Lvl.{card.level}")
+             ]
     if opened:
-        return dmc.Container(dmc.Title("Currently testing for this card", order=4, align="center"))
+        return dmc.Container(dmc.Title("Currently testing for this card", order=4, align="center")), title
     else:
         es_list, fr_list = gen_lists(card.words)
-        return dmc.Grid([
-            dmc.Col(es_list, span=6),
-            dmc.Col(fr_list, span=6),
-        ])
+        return [
+                   dmc.Col(es_list, span=6),
+                   dmc.Col(fr_list, span=6),
+               ], title
+
+
+@callback(
+    Output("user-badge", "children"),
+    Input({'type': 'test-modal', 'index': ALL}, "opened"),
+    prevent_initial_call=True,
+)
+def update_global_level(opened):
+    return f"Global level {viagounet.level}"
 
 
 if __name__ == "__main__":

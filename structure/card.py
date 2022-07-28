@@ -6,6 +6,7 @@ from dash import html
 from dash_iconify import DashIconify
 
 from structure.card_test import CardTest
+from utility.func import level_mapping
 
 
 def gen_lists(words):
@@ -80,9 +81,7 @@ class Card:
 
     @property
     def level(self):
-        if self.score < 0:
-            return 0
-        return int(log(self.score + 1, 3))
+        return level_mapping(self.score)
 
     @property
     def render(self):
@@ -93,7 +92,7 @@ class Card:
                            variant="gradient",
                            gradient={"from": "teal", "to": "lime", "deg": 105},
                        ),
-                       ], align="center"),
+                       ], align="center", id={"type": "card-title", "index": self.title}),
             dmc.Space(h=5),
             dmc.Divider(variant="dotted"),
             dmc.Space(h=15),

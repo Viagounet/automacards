@@ -2,6 +2,9 @@ import dash_mantine_components as dmc
 from dash import dcc
 from dash_iconify import DashIconify
 
+from pages.accounts import viagounet
+from utility.dash_func import badge
+
 
 def create_home_link(label):
     return dmc.Text(
@@ -56,11 +59,7 @@ header = dmc.Header(
                         align="center",
                         spacing="xl",
                         children=[
-                            dmc.Badge(
-                                "Global level 1",
-                                variant="gradient",
-                                gradient={"from": "teal", "to": "lime", "deg": 105},
-                            ),
+                            badge(viagounet.level, f"Global level {viagounet.level}", id="user-badge"),
                             dmc.Text("Ismaël"),
                             dmc.Tooltip(
                                 dmc.ThemeIcon(

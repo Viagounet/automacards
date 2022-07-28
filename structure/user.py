@@ -1,3 +1,6 @@
+from utility.func import level_mapping
+
+
 class User:
     def __init__(self, name, cards):
         self.name = name
@@ -8,3 +11,11 @@ class User:
             if card_title == card.title:
                 return card
         return None
+
+    @property
+    def score(self):
+        return sum([card.score for card in self.cards])
+
+    @property
+    def level(self):
+        return level_mapping(self.score)
