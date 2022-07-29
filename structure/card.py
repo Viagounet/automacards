@@ -79,10 +79,10 @@ class Card:
                 "words": [word.serialize for word in self.words]}
 
     def save(self):
-        with open(f"data/{self.user}/cards/{self.title}.json", "w", encoding="utf-8") as fb:
+        with open(f"data/{self.user.name}/cards/{self.title}.json", "w", encoding="utf-8") as fb:
             json.dump(self.serialize, fb)
         for word in self.words:
-            word.save(self.user)
+            word.save(self.user.name)
 
     @property
     def score(self):
@@ -160,8 +160,8 @@ class Card:
 
 class CardFromFile(Card):
     def __init__(self, user, title):
-        with open(f"data/{user}/cards/{title}.json", "r", encoding="utf-8") as fb:
+        with open(f"data/{user.name}/cards/{title}.json", "r", encoding="utf-8") as fb:
             self.data = json.load(fb)
-        self.words = [WordFromFile(user, word["string"]) for word in self.data["words"]]
+        self.words = [WordFromFile(user.name, word["string"]) for word in self.data["words"]]
         super(CardFromFile, self).__init__(self.data["title"], self.words, user)
         self.title = self.data["title"]

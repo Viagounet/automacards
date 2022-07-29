@@ -87,7 +87,7 @@ def test_manager(n, n_, n__, opened, modal_children, input_value):
 
         if card.test.current_word.translation == "":
             card.test.current_word.translation = input_value
-            card.save("viagounet")
+            card.save()
 
         card.test.next()
         top, bottom = gen_elements(card, type, input_value)

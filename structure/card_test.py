@@ -6,6 +6,7 @@ from dash_iconify import DashIconify
 from numpy import interp
 
 
+
 class CardTest:
     def __init__(self, card):
         self.card = card

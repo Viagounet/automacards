@@ -16,7 +16,7 @@ class User:
         self.cards = []
         self.dm = DecisionMaker(25000, "embeddings/embeddings-l-model.vec")
         for path in glob(f"data/{name}/cards/*.json"):
-            self.cards.append(CardFromFile(self.name, basename(path).replace(".json", "")))
+            self.cards.append(CardFromFile(self, basename(path).replace(".json", "")))
 
     def add_new_card(self, title, words):
         """ Add a new card to the user.
@@ -25,7 +25,7 @@ class User:
         :return: Card
         """
 
-        card = Card(title, words, self.name)
+        card = Card(title, words, self)
         card.save()  # Save the card in the user's folder
         self.cards.append(card)
 
