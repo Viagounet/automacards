@@ -105,5 +105,7 @@ def add_card_button_callback(n_clicks, values_origin, values_translation, title)
         word = Word(string)
         word.translation = translation
         words.append(word)
+    print(viagounet.cards)
     viagounet.add_new_card(title, words)
-    return True
+    print(viagounet.cards)
+    return False

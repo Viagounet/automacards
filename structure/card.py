@@ -14,6 +14,13 @@ def gen_lists(words):
     fr_item_list = []
     es_item_list = []
     for word in words:
+
+        # Managing None values
+        if word.translation is None:
+            word.translation = ""
+        if word.string is None:
+            word.string = ""
+
         if word.translation == "":
             fr_item_list.append(dmc.ListItem(dmc.Text("n/a")))
             es_item_list.append(dmc.ListItem(dmc.Text(word.string)))

@@ -2,6 +2,7 @@ from glob import glob
 from os.path import basename
 
 from structure.card import CardFromFile, Card
+from structure.decision_taker import DecisionMaker
 from utility.func import level_mapping
 
 
@@ -13,6 +14,7 @@ class User:
         """
         self.name = name
         self.cards = []
+        self.dm = DecisionMaker(25000, "embeddings/embeddings-l-model.vec")
         for path in glob(f"data/{name}/cards/*.json"):
             self.cards.append(CardFromFile(self.name, basename(path).replace(".json", "")))
 

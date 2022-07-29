@@ -18,6 +18,7 @@ class CardTest:
         self.card_score_at_start = self.card.score
 
     def start(self):
+        print("Current word:", self.current_word.string)
         self.card.shuffle()
         self.state = "Running"
         if self.current_word.translation == "":
@@ -48,6 +49,7 @@ class CardTest:
 
     @property
     def score(self):
+        print(self.card.title, self.card_score_at_start, self.card.score)
         return interp(self.card.score, [self.card_score_at_start, self.card_score_at_start * 1.5], [0, 100])
 
     def next(self):
@@ -63,7 +65,8 @@ class CardTest:
     def stop(self):
         self.card_score_at_start = self.card.score
         self.card.save()
-        self.state = "Finished"
+        self.card.user.dm.add_words_to(self.card)
+        self.state = "Not started yet"
 
     @property
     def render_clear_text(self):
