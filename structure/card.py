@@ -50,7 +50,7 @@ def gen_lists(words):
 
 
 class Card:
-    def __init__(self, title, words):
+    def __init__(self, title, words, user):
 
         # Creating the words list with a list of String or a list of Word
         if type(words[0]) == str:
@@ -60,6 +60,7 @@ class Card:
 
         self.title = title
         self.test = CardTest(self)
+        self.user = user
 
     def shuffle(self):
         shuffle(self.words)
@@ -70,11 +71,11 @@ class Card:
                 "score": self.score,
                 "words": [word.serialize for word in self.words]}
 
-    def save(self, user):
-        with open(f"data/{user}/cards/{self.title}.json", "w", encoding="utf-8") as fb:
+    def save(self):
+        with open(f"data/{self.user}/cards/{self.title}.json", "w", encoding="utf-8") as fb:
             json.dump(self.serialize, fb)
         for word in self.words:
-            word.save(user)
+            word.save(self.user)
 
     @property
     def score(self):
@@ -149,11 +150,11 @@ class Card:
         elif isinstance(other, Card):
             self.words = self.words + other.words
 
+
 class CardFromFile(Card):
     def __init__(self, user, title):
         with open(f"data/{user}/cards/{title}.json", "r", encoding="utf-8") as fb:
             self.data = json.load(fb)
         self.words = [WordFromFile(user, word["string"]) for word in self.data["words"]]
-        super(CardFromFile, self).__init__(self.data["title"], self.words)
+        super(CardFromFile, self).__init__(self.data["title"], self.words, user)
         self.title = self.data["title"]
-        self.score = self.data["score"]

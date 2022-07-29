@@ -2,6 +2,7 @@ import dash
 from dash import Dash, ALL
 
 from pages.accounts import viagounet
+from pages.home.add_card_modal import add_card_modal
 from pages.home.cards import cards
 from pages.home.timeline import create_timeline
 from pages.header import header
@@ -19,14 +20,13 @@ import dash_mantine_components as dmc
 account = viagounet
 decision_maker = DecisionMaker(25000, "embeddings/embeddings-l-model.vec")
 
-
 timeline = create_timeline(0)
 tabs = dmc.Col(dmc.Tabs(
     color="red",
     orientation="vertical",
     children=[
         dmc.Tab(label="Cards", children=[cards]),
-        dmc.Tab(label="Deck", children=[]),
+        dmc.Tab(label="Deck", children=[add_card_modal]),
         dmc.Tab(label="Stats", children=[]),
     ]
 ), span=9)
@@ -135,4 +135,4 @@ def update_global_level(opened):
 
 
 if __name__ == "__main__":
-    app.run_server()
+    app.run_server(debug=True)

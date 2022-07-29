@@ -62,8 +62,7 @@ class CardTest:
 
     def stop(self):
         self.card_score_at_start = self.card.score
-        print("Card Level : ", self.card.level)
-        print("Card Score : ", self.card.score)
+        self.card.save()
         self.state = "Finished"
 
     @property
@@ -139,8 +138,6 @@ class CardTest:
             possible_words.append([word, "taor"])
             weights.append(int(exp(-word.orta_score / 10) * 1000))
             weights.append(int(exp(-word.taor_score / 10) * 1000))
-
-        print([(word[0].string, word[0].translation, score) for word, score in zip(possible_words, weights)])
 
         chosen_tuple = choices(possible_words, weights)[0]
         word, language = chosen_tuple
