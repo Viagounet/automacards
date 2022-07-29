@@ -17,12 +17,13 @@ class DecisionMaker:
                 card_words.append(word.string)
         most_similar = self.wv.most_similar_cosmul(positive=card_words, topn=100)
         similar_words = [self.lemmatize(value[0]) for value in most_similar]
-        similar_words_self_filtered = self.self_min_lev_threshold(similar_words, 2)
+        similar_words_self_filtered = self.self_min_lev_threshold(similar_words, 4)
         similar_words_filtered = self.min_lev_threshold(similar_words_self_filtered, card_words, 2)[:5]
 
         for word in similar_words_filtered:
             # card += Word(word)
             card.words.append(Word(word))
+        return similar_words_filtered
 
     def lemmatize(self, word):
         doc = self.model(word)

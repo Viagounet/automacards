@@ -7,6 +7,7 @@ cards = viagounet.cards
 
 add_card = dmc.Paper([(dmc.Col(dmc.Button(
             "Add card",
+            id="add-card-button-global",
             leftIcon=[DashIconify(icon="ic:baseline-post-add")],
         ), span=3))], shadow="xs", radius=10, withBorder=True, p=10)
 cards = dmc.Col(

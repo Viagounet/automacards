@@ -1,3 +1,4 @@
+import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, State, ALL
 from dash_iconify import DashIconify
@@ -5,6 +6,7 @@ from dash_iconify import DashIconify
 from pages.accounts import viagounet
 from structure.card import Card
 from structure.word import Word
+from utility.func import parse
 
 
 def block(n):
@@ -44,7 +46,7 @@ def gen_input_group(n):
 header = [dmc.Group([dmc.Title("Card title : ", order=3), dmc.TextInput(placeholder="Title", id="card-title")])]
 
 add_card_modal = dmc.Modal(
-    opened=True,
+    opened=False,
     title=f"Add a new card",
     size="50%",
     id="add-card-modal",
@@ -92,20 +94,29 @@ def add_word_button_callback(n_clicks, children):
 @callback(
     Output("add-card-modal", "opened"),
     Input("add-card-button", "n_clicks"),
+    Input("add-card-button-global", "n_clicks"),
     State({"type": "input-origin", "index": ALL}, "value"),
     State({"type": "input-translation", "index": ALL}, "value"),
     State("card-title", "value"),
     prevent_initial_call=True,
 )
-def add_card_button_callback(n_clicks, values_origin, values_translation, title):
-    if n_clicks is None:
+def add_card_button_callback(n_clicks, n_clicks_, values_origin, values_translation, title):
+    ctx = dash.callback_context
+    prop = ctx.triggered[0]["prop_id"].split(".")[0]
+    if prop == "add-card-button":
+        if n_clicks is None:
+            return True
+        words = []
+        for string, translation in zip(values_origin, values_translation):
+            word = Word(string)
+            word.translation = translation
+            words.append(word)
+        print(viagounet.cards)
+        viagounet.add_new_card(title, words)
+        print(viagounet.cards)
+        return False
+    elif prop == "add-card-button-global":
+        if n_clicks_ is None:
+            return False
         return True
-    words = []
-    for string, translation in zip(values_origin, values_translation):
-        word = Word(string)
-        word.translation = translation
-        words.append(word)
-    print(viagounet.cards)
-    viagounet.add_new_card(title, words)
-    print(viagounet.cards)
     return False

@@ -2,9 +2,9 @@ from math import exp
 from random import choice, choices
 
 import dash_mantine_components as dmc
+from dash import html
 from dash_iconify import DashIconify
 from numpy import interp
-
 
 
 class CardTest:
@@ -15,11 +15,15 @@ class CardTest:
         self.current_word = self.card.words[0]
         self.limit = len(self.card)
         self.nb_trials = 0
+        self.good_answers = 0
         self.last_answer = ""
         self.card_score_at_start = self.card.score
+        self.automatically_added_words = []
 
     def start(self):
         print("Current word:", self.current_word.string)
+        self.nb_trials = 0
+        self.good_answers = 0
         self.card.shuffle()
         self.state = "Running"
         if self.current_word.translation == "":
@@ -31,6 +35,7 @@ class CardTest:
         if self.src_lan == "orta" or self.src_lan == "new":
             if user_input == self.current_word.translation:
                 self.current_word.orta_score += 1.5
+                self.good_answers += 1
                 return dmc.Alert("You're right!", title="Nice!", color="green")
             else:
                 self.current_word.orta_score -= 1.5
@@ -40,6 +45,7 @@ class CardTest:
         elif self.src_lan == "taor":
             if user_input == self.current_word.string:
                 self.current_word.taor_score += 1.5
+                self.good_answers += 1
                 return dmc.Alert("You're right!", title="Good!", color="green")
             else:
                 self.current_word.taor_score -= 1.5
@@ -66,7 +72,7 @@ class CardTest:
     def stop(self):
         self.card_score_at_start = self.card.score
         self.card.save()
-        self.card.user.dm.add_words_to(self.card)
+        self.automatically_added_words = self.card.user.dm.add_words_to(self.card)
         self.state = "Not started yet"
 
     @property
@@ -133,6 +139,19 @@ class CardTest:
         elif self.src_lan == "taor":
             return dmc.Group([self.render_clear_text, dmc.Space(h=15), self.render_input])
         return dmc.Container(f"There has been a problem (wrong or no language provided) (lan={self.src_lan}")
+
+    @property
+    def render_endscreen(self):
+        return html.Div(
+            [dmc.Title("Congratulations! You successfully completed this level!"),
+             dmc.Text(f"You got a precision of {self.good_answers / self.nb_trials * 100:.2f}%"),
+             dmc.Text(f"Because you're THAT good, we'll add a few more words in your card!"),
+             dmc.Divider(),
+             # Showing the new
+             dmc.Text(f"The new words added to your card are :"),
+             dmc.List([
+                 dmc.ListItem(dmc.Text(word)) for word in self.automatically_added_words])],
+            style={"display": "flex", "flex-direction": "column", "align-items": "center"})
 
     def ask(self):
         possible_words = []

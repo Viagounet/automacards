@@ -24,13 +24,14 @@ tabs = dmc.Col(dmc.Tabs(
     orientation="vertical",
     children=[
         dmc.Tab(label="Cards", children=[cards]),
-        dmc.Tab(label="Deck", children=[add_card_modal]),
+        dmc.Tab(label="Deck", children=[]),
         dmc.Tab(label="Stats", children=[]),
     ]
 ), span=9)
 
 app.layout = html.Div(
     [header,
+     add_card_modal,
      dmc.Space(h=20),
      dmc.Grid(
          [
@@ -90,6 +91,8 @@ def test_manager(n, n_, n__, opened, modal_children, input_value):
             card.save()
 
         card.test.next()
+        if card.test.state == "Not started yet":
+            return True, [card.test.render_endscreen], title
         top, bottom = gen_elements(card, type, input_value)
 
         if card.test.state == "Not started yet":
