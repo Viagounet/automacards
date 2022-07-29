@@ -112,12 +112,17 @@ class Card:
             dmc.Col(fr_list, span=6),
         ],
             style={"height": "30vh", "overflow-y": "scroll"}, id={"type": "list-words", "index": self.title})]
-        button = [html.Div([dmc.Divider(variant="dotted"),
-                            dmc.Button("Take a test", id={
+        button = [html.Div([dmc.Button("Add a word", size="xs",
+                                       id={
+                                'type': 'add-word',
+                                'index': self.title
+                            }),
+                            dmc.Space(w=15),
+                            dmc.Button("Take a test", size="xs", id={
                                 'type': 'test-button',
                                 'index': self.title
                             })],
-                           className="d-flex flex-column justify-content-center align-items-center",
+                           className="d-flex flex-row justify-content-center align-items-center",
                            style={"width": "100%", "display": "flex", "justify-content": "center",
                                   "align-items": "center"})]
 
